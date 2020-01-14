@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.languageserver.configuration.ComputeDiagnosticsSkipSupport;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
@@ -28,10 +29,13 @@ import org.sonar.api.resources.Qualifiers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class BSLCommunityProperties {
 
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
+  public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY = "sonar.bsl.languageserver.skipSupport";
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
   public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
@@ -39,6 +43,8 @@ public final class BSLCommunityProperties {
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
+  public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE
+    = ComputeDiagnosticsSkipSupport.NEVER.name();
   public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
   public static final Boolean BSL_CALCULATE_LINE_TO_COVER_VALUE = Boolean.FALSE;
 
@@ -92,6 +98,21 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .index(3)
         .build(),
+      PropertyDefinition.builder(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
+        .name("BSL Language Server - Skip computing diagnostics on modules with parent configurations")
+        .description("Skip computing diagnostics according to module's support mode " +
+          "(if there is a parent configuration).")
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(BSL_SUBCATEGORY)
+        .defaultValue(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE)
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(Stream.of(ComputeDiagnosticsSkipSupport.values())
+          .map(Enum::name)
+          .collect(Collectors.toList())
+        )
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(0)
+        .build(),
       PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
         .name("BSL Language Server Report Files")
         .description("Paths (absolute or relative) to xml files with BSL Language Server diagnostics")
@@ -100,6 +121,7 @@ public final class BSLCommunityProperties {
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .index(1)
         .build()
     );
   }

@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.languageserver.configuration.ComputeDiagnosticsSkipSupport;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
@@ -314,6 +315,15 @@ public class BSLCoreSensor implements Sensor {
     languageServerConfiguration.setDiagnosticLanguage(
       DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
     );
+
+    ComputeDiagnosticsSkipSupport skipSupport = context.config()
+      .get(BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
+      .map(ComputeDiagnosticsSkipSupport::valueOf)
+      .orElse(ComputeDiagnosticsSkipSupport.valueOf(
+        BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE
+      ));
+
+    languageServerConfiguration.setComputeDiagnosticsSkipSupport(skipSupport);
 
     ActiveRules activeRules = context.activeRules();
 
